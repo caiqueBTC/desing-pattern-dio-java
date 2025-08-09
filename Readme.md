@@ -8,7 +8,7 @@ O objetivo foi criar um sistema flexível e de fácil manutenção para o envio 
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java 17**
+- **Java 21**
 - **Spring Boot**
 - **Spring Web**
 - **Maven**
