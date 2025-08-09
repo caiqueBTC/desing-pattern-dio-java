@@ -1,0 +1,90 @@
+Sistema de Notificações - Desafio de Projeto DIO & GFT
+
+Este projeto é uma API REST desenvolvida em Spring Boot como parte do Desafio de Projeto "Explorando Padrões de Projetos na Prática com Java", oferecido pela Digital Innovation One em parceria com a GFT.
+
+O objetivo foi criar um sistema flexível e de fácil manutenção para o envio de diferentes tipos de notificações (Email, SMS e Push), aplicando na prática os conceitos de Design Patterns.
+Tecnologias Utilizadas
+
+    Java 17
+
+    Spring Boot
+
+    Spring Web
+
+    Maven
+
+Padrões de Projeto Aplicados
+
+Este projeto foi estruturado para exemplificar quatro padrões de projeto essenciais que trabalham em conjunto para criar uma solução robusta e desacoplada.
+1. Singleton
+
+O padrão Singleton garante que uma classe tenha apenas uma instância e fornece um ponto de acesso global a ela.
+
+    Aplicação no Projeto: O próprio Spring Framework gerencia nossos componentes como Singletons por padrão. Classes anotadas com @Service, @RestController e @Repository são instanciadas apenas uma vez pelo contêiner de Injeção de Dependências (IoC) e reutilizadas em toda a aplicação. Isso garante eficiência no uso de memória e um gerenciamento centralizado.
+
+        Exemplos: NotificacaoFacade e todas as implementações de NotificacaoStrategy (EmailStrategyImpl, etc.) são Singletons gerenciados pelo Spring.
+
+2. Builder
+
+O padrão Builder é um padrão criacional que permite a construção de objetos complexos passo a passo. Ele é utilizado para criar um objeto de forma mais legível e flexível, especialmente quando há muitos atributos.
+
+    Aplicação no Projeto: Utilizamos o Builder na classe Notificacao para criar uma instância de notificação de forma fluente e clara. Isso evita a necessidade de um construtor com múltiplos parâmetros.
+
+        Exemplo no NotificacaoController:
+
+        Notificacao notificacao = new Notificacao.Builder()
+                .para(request.getDestinatario())
+                .comTitulo(request.getTitulo())
+                .comMensagem(request.getMensagem())
+                .doTipo(request.getTipo())
+                .construir();
+
+3. Strategy
+
+O padrão Strategy é um padrão comportamental que permite definir uma família de algoritmos, encapsulá-los em classes separadas e torná-los intercambiáveis.
+
+    Aplicação no Projeto: Usamos este padrão para definir as diferentes formas de envio de notificações.
+
+        A interface NotificacaoStrategy define o contrato (o "algoritmo" de envio).
+
+        As classes EmailStrategyImpl, SmsStrategyImpl e PushStrategyImpl são as implementações concretas (as "estratégias").
+
+        Isso nos permite adicionar novos métodos de notificação no futuro (como WhatsApp, por exemplo) apenas criando uma nova classe que implemente NotificacaoStrategy, sem alterar o código que utiliza o serviço.
+
+4. Facade
+
+O padrão Facade é um padrão estrutural que fornece uma interface simplificada para um subsistema ou um conjunto complexo de interfaces.
+
+    Aplicação no Projeto: A classe NotificacaoFacade atua como a nossa "fachada". Ela esconde a complexidade de ter que selecionar a Strategy correta para o envio da notificação.
+
+        O NotificacaoController não precisa saber se existem 3 ou 10 estratégias de envio. Ele simplesmente entrega o objeto Notificacao para a Facade.
+
+        A Facade, por sua vez, contém a lógica para escolher a implementação correta de NotificacaoStrategy com base no TipoNotificacao e delegar a execução. Isso torna o Controller mais limpo e desacoplado da lógica de seleção.
+
+Como Executar
+
+    Clone este repositório.
+
+    Abra um terminal na pasta raiz do projeto.
+
+    Execute o comando: mvn spring-boot:run
+
+    O servidor estará rodando em http://localhost:8080.
+
+Como Testar a API
+
+Use o curl ou uma ferramenta de API para enviar uma requisição POST para o endpoint http://localhost:8080/notificacoes/enviar.
+
+Exemplo com cURL:
+
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+        "destinatario": "exemplo@email.com",
+        "titulo": "Teste de API",
+        "mensagem": "Isso é um teste de notificação.",
+        "tipo": "EMAIL"
+      }' \
+  http://localhost:8080/notificacoes/enviar
+
+Altere o valor do campo "tipo" para "SMS" ou "PUSH" para testar as outras estratégias.
